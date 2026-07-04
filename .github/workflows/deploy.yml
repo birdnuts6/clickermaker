@@ -26,7 +26,7 @@ jobs:
         uses: actions/configure-pages@v4
 
       - name: Build Static Web Customizer
-        uses: yawkat/web-openscad-editor@v1
+        uses: yawkat/web-openscad-editor@main
 
       - name: Upload web artifact
         uses: actions/upload-pages-artifact@v3
