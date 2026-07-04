@@ -27,6 +27,8 @@ jobs:
 
       - name: Build Static Web Customizer
         uses: yawkat/web-openscad-editor@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload web artifact
         uses: actions/upload-pages-artifact@v3
