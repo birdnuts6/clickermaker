@@ -1,6 +1,6 @@
 [project]
 name = "Parametric Fidget Switch Clicker"
-uri = "https://github.com/birdnuts6/clickermaker"
+uri = "https://github.com/william_d_kidd/clickermaker"
 export-filename-prefix = "custom-fidget-clicker"
 
 [[model]]
