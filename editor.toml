@@ -1,35 +1,5 @@
 title = "Custom Fidget Clicker"
 
 [[model]]
-name = "Clicker Creator"
+name = "Fidget Clicker Creator"
 file = "clicker.scad"
-
-[[model.parameter]]
-id = "part_to_render"
-type = "select"
-name = "Part to Render"
-options = ["housing", "button"]
-
-[[model.parameter]]
-id = "housing_height"
-type = "number"
-name = "Housing Height"
-min = 10
-max = 25
-step = 1
-
-[[model.parameter]]
-id = "button_height"
-type = "number"
-name = "Button Height"
-min = 5
-max = 15
-step = 1
-
-[[model.parameter]]
-id = "tolerance"
-type = "number"
-name = "3D Printer Tolerance"
-min = 0.0
-max = 0.5
-step = 0.05
