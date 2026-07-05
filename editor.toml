@@ -8,7 +8,6 @@ file = "clicker.scad"
 id = "part_to_render"
 type = "select"
 name = "Part to Render"
-# Added missing structure details so Jinja2 doesn't crash:
 options = ["housing", "button"] 
 
 [[model.parameter]]
