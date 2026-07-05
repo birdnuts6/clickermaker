@@ -1,5 +1,8 @@
-title = "Custom Fidget Clicker"
-
-[[model]]
+# Project metadata (THIS IS WHAT WAS MISSING)
+[project]
 name = "Fidget Clicker Creator"
+export-filename-prefix = "custom-clicker"
+
+# Model file mapping
+[[model]]
 file = "clicker.scad"
