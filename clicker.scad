@@ -1,15 +1,13 @@
 // --- PARAMETRIC FIDGET CLICKER ---
 
 /* [Main Configuration] */
-
 // Which part of the clicker do you want to generate?
-part_to_render = "housing"; // ["housing": Bottom Housing Shell, "button": Top Button Cap]
+part_to_render = "housing"; 
 
 // Upload your custom vector outline file
 logo_file = "default.svg"; // [file:svg]
 
 /* [Dimensions] */
-
 // Overall height of the clicker housing
 housing_height = 15; 
 
