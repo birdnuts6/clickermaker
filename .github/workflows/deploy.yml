@@ -26,7 +26,8 @@ jobs:
       - name: Build Static Web Customizer
         uses: yawkat/web-openscad-editor@main
         with:
-          config: '${{ github.workspace }}/editor.toml'
+          # This line forces the tool to execute directly on the individual file
+          config: 'editor.toml'
 
       - name: Upload web artifact
         uses: actions/upload-pages-artifact@v3
