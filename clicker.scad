@@ -1,13 +1,8 @@
 // --- PARAMETRIC FIDGET CLICKER ---
 
-/* [Main Configuration] */
-// Which part of the clicker do you want to generate?
-part_to_render = "housing"; 
-
 // Upload your custom vector outline file
-logo_file = "default.svg"; // [file:svg]
+logo_file = "default.svg"; 
 
-/* [Dimensions] */
 // Overall height of the clicker housing
 housing_height = 15; 
 
@@ -23,25 +18,21 @@ switch_depth = 11.0;
 cross_size = 5.0;         
 stem_l = 1.35;            
 
-// --- MAIN LOGIC ---
-if (part_to_render == "housing") {
-    generate_housing();
-} else if (part_to_render == "button") {
-    generate_button();
-}
+// --- GENERATING BOTH PARTS SIDE BY SIDE ---
+// This spits out both models right next to each other automatically
 
-module generate_housing() {
-    difference() {
-        linear_extrude(height = housing_height) {
-            import(logo_file, center = true);
-        }
-        translate([0, 0, housing_height - (switch_depth / 2) + 0.1]) {
-            cube([switch_hole + tolerance, switch_hole + tolerance, switch_depth], center = true);
-        }
+// 1. Bottom Housing Shell (Centered at 0,0)
+difference() {
+    linear_extrude(height = housing_height) {
+        import(logo_file, center = true);
+    }
+    translate([0, 0, housing_height - (switch_depth / 2) + 0.1]) {
+        cube([switch_hole + tolerance, switch_hole + tolerance, switch_depth], center = true);
     }
 }
 
-module generate_button() {
+// 2. Top Button Cap (Shifted 40mm to the right so it doesn't overlap)
+translate([40, 0, 0]) {
     difference() {
         linear_extrude(height = button_height) {
             import(logo_file, center = true);
