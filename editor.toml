@@ -1,8 +1,14 @@
-# Project metadata (THIS IS WHAT WAS MISSING)
 [project]
 name = "Fidget Clicker Creator"
 export-filename-prefix = "custom-clicker"
 
-# Model file mapping
 [[model]]
+name = "Clicker Creator"
 file = "clicker.scad"
+
+# THIS SECTION GENERATES THE FILE UPLOAD BUTTON ON YOUR SIDEBAR:
+[[model.parameter]]
+id = "logo_file"
+type = "file"
+name = "Upload Custom SVG Shape"
+accept = ".svg"
