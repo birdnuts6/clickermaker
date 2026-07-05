@@ -1,23 +1,25 @@
 // --- PARAMETRIC FIDGET CLICKER ---
 
+/* [Main Configuration] */
+
 // Which part of the clicker do you want to generate?
-// [housing:Bottom Housing Shell, button:Top Button Cap]
-part_to_render = "housing"; 
+part_to_render = "housing"; // ["housing": Bottom Housing Shell, "button": Top Button Cap]
 
 // Upload your custom vector outline file
 logo_file = "default.svg"; // [file:svg]
 
+/* [Dimensions] */
+
 // Overall height of the clicker housing
-housing_height = 15; // [10:1:25]
+housing_height = 15; 
 
 // Overall height of the top button cap
-button_height = 8; // [5:1:15]
+button_height = 8; 
 
 // Clearance buffer so parts fit together cleanly (3D printer tolerance)
 tolerance = 0.2; 
 
-
-/* [Hidden Mechanical Switch Dimensions] */
+/* [Hidden Settings] */
 switch_hole = 14.0;       
 switch_depth = 11.0;      
 cross_size = 5.0;         
