@@ -1,9 +1,42 @@
-[project]
-name = "Parametric Fidget Switch Clicker"
-uri = "https://github.com/birdnuts6/clickermaker"
-export-filename-prefix = "custom-fidget-clicker"
+title = "Custom SVG Parametric Clicker Interface"
 
 [[model]]
-file = "clicker_generator.scad"
-index = true
-description-extra-html = "<p>Use the panels on the left to size your button casing, customize print tolerances, and emboss personalized text onto the clicker plunger.</p>"
+name = "Fidget Clicker Creator"
+file = "clicker.scad"
+
+[[model.parameter]]
+id = "part_to_render"
+type = "select"
+name = "Part to Render"
+
+[[model.parameter]]
+id = "logo_file"
+type = "file"
+name = "Upload Custom SVG Shape"
+accept = ".svg"
+
+[[model.parameter]]
+id = "add_keychain"
+type = "checkbox"
+name = "Add Keychain Loop"
+
+[[model.parameter]]
+id = "keychain_offset"
+type = "number"
+name = "Keychain Loop Distance from Center"
+min = 15
+max = 60
+step = 1
+
+[[model.parameter]]
+id = "button_text"
+type = "text"
+name = "Button Text Engraving"
+
+[[model.parameter]]
+id = "text_size"
+type = "number"
+name = "Text Font Size"
+min = 3
+max = 15
+step = 0.5
