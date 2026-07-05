@@ -1,8 +1,9 @@
 [project]
 name = "Parametric Fidget Switch Clicker"
-uri = "https://github.com/william_d_kidd/clickermaker"
+uri = "https://github.com/birdnuts6/clickermaker"
 export-filename-prefix = "custom-fidget-clicker"
 
 [[model]]
 file = "clicker_generator.scad"
-description-extra-html = "Use the panels on the left to size your button casing, customize print tolerances, and emboss personalized text onto the clicker plunger."
+index = true
+description-extra-html = "<p>Use the panels on the left to size your button casing, customize print tolerances, and emboss personalized text onto the clicker plunger.</p>"
