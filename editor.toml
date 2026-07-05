@@ -1,7 +1,7 @@
 title = "Custom Fidget Clicker"
 
 [[model]]
-name = "Clicker Model Creator"
+name = "Clicker Creator"
 file = "clicker.scad"
 
 [[model.parameter]]
@@ -9,12 +9,6 @@ id = "part_to_render"
 type = "select"
 name = "Part to Render"
 options = ["housing", "button"]
-
-[[model.parameter]]
-id = "logo_file"
-type = "file"
-name = "Upload Custom SVG Shape"
-accept = ".svg"
 
 [[model.parameter]]
 id = "housing_height"
