@@ -8,6 +8,8 @@ file = "clicker.scad"
 id = "part_to_render"
 type = "select"
 name = "Part to Render"
+# Added missing structure details so Jinja2 doesn't crash:
+options = ["housing", "button"] 
 
 [[model.parameter]]
 id = "logo_file"
@@ -23,7 +25,7 @@ name = "Add Keychain Loop"
 [[model.parameter]]
 id = "keychain_offset"
 type = "number"
-name = "Keychain Loop Distance from Center"
+name = "Keychain Loop Distance"
 min = 15
 max = 60
 step = 1
