@@ -1,4 +1,5 @@
 title = "Custom Fidget Clicker"
 
 [[model]]
+name = "Clicker Model Creator" # Added the missing name attribute
 file = "clicker.scad"
