@@ -5,10 +5,3 @@ export-filename-prefix = "custom-clicker"
 [[model]]
 name = "Clicker Creator"
 file = "clicker.scad"
-
-# THIS SECTION GENERATES THE FILE UPLOAD BUTTON ON YOUR SIDEBAR:
-[[model.parameter]]
-id = "logo_file"
-type = "file"
-name = "Upload Custom SVG Shape"
-accept = ".svg"
