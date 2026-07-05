@@ -1,0 +1,4 @@
+title = "Custom Fidget Clicker"
+
+[[model]]
+file = "clicker.scad"
