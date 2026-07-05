@@ -22,29 +22,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-numeric-version: '3.11'
-
-      - name: Install System Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libgl1-mesa-dev xvfb
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-
       - name: Build Static Web Customizer
-        run: |
-          xvfb-run --auto-servernum npx --yes github:yawkat/web-openscad-editor
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: yawkat/web-openscad-editor@main
 
       - name: Upload web artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: 'target/web/'
+          path: 'out/'
 
       - name: Deploy to GitHub Pages
         id: deployment
