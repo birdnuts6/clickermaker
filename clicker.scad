@@ -3,7 +3,7 @@
 /* [Main Configuration] */
 
 // Upload your custom vector outline file here
-logo_file = ""; // [file:svg]
+logo_file = "./"; // [file:svg]
 
 // Overall height of the clicker housing
 housing_height = 15; // [10:1:25]
@@ -50,7 +50,7 @@ difference() {
 translate([40, 0, 0]) {
     difference() {
         // If no file is uploaded yet, draw the matching cap block
-        if (logo_file == "") {
+        if (logo_file =="./") {
             linear_extrude(height = button_height) {
                 minkowski() {
                     square([26, 26], center = true);
