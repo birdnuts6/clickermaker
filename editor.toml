@@ -5,3 +5,10 @@ export-filename-prefix = "custom-clicker"
 [[model]]
 name = "Clicker Creator"
 file = "clicker.scad"
+
+[ui]
+# Unlocks a sidebar folder browser so users can drag/drop additional project models
+show-file-manager = true
+
+# Unlocks custom code entry boxes
+allow-custom-code = true
