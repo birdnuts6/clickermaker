@@ -29,27 +29,34 @@ floor_thickness = 3.0;
 overcut = 0.1;        
 
 
-// --- DYNAMIC LAYER GENERATORS ---
-module outer_profile() {
+// --- FIXED 3D IMAGE PROCESSOR ---
+module outer_profile_3d() {
     if (logo_file == "" || logo_file == "./" || logo_file == "default.png") {
+        // Fallback default shape if no image is uploaded
+        linear_extrude(height = 1)
         minkowski() {
             square([26, 26], center = true);
             circle(r = 2, $fn = 16);
         }
     } else {
-        // MakerWorld takes your uploaded picture and auto-traces it into a 2D shape here
-        scale([0.5, 0.5, 1]) 
-            resize([50, 50, 0])
-                import(logo_file, center = true);
+        // CORRECTED IMAGE LOADER: Uses surface() to read raw PNG/JPG pixels safely
+        scale([0.2, 0.2, 0.1]) // Scales a large image down to normal clicker toy proportions
+            surface(file = logo_file, center = true, invert = true);
     }
 }
 
+// Converts the 3D height-map profile back to flat 2D layers for nesting offsets
+module outer_profile_2d() {
+    projection(cut = false) 
+        outer_profile_3d();
+}
+
 module inner_pocket_profile() {
-    offset(r = -wall_thickness) outer_profile();
+    offset(r = -wall_thickness) outer_profile_2d();
 }
 
 module button_profile() {
-    offset(r = -(wall_thickness + tolerance)) outer_profile();
+    offset(r = -(wall_thickness + tolerance)) outer_profile_2d();
 }
 
 module mechanical_core() {
@@ -60,14 +67,16 @@ module mechanical_core() {
 // --- MANUFACTURING ACTIONS ---
 module build_bottom() {
     difference() {
+        // Extrude the base using the image's 2D vector outline boundary
         linear_extrude(height = housing_height) 
-            outer_profile();
+            outer_profile_2d();
         
+        // Hollow out the nesting case walls
         translate([0, 0, floor_thickness]) 
             linear_extrude(height = housing_height - floor_thickness + overcut) 
                 inner_pocket_profile();
         
-        // Stamping out the core from the floor of the housing
+        // Stamp out the mechanical core
         translate([0, 0, floor_thickness]) 
             mechanical_core();
     }
@@ -75,10 +84,11 @@ module build_bottom() {
 
 module build_top() {
     difference() {
+        // Extrude the plunging cap using the scaled offset profile
         linear_extrude(height = button_height) 
             button_profile();
         
-        // Stamping out the core from the bottom of the plunging button
+        // Stamp the core out of the bottom of the top cap
         translate([0, 0, 0]) 
             mechanical_core();
     }
