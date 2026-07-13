@@ -1,7 +1,8 @@
 // --- PARAMETRIC AUTO-SCALING CHERRY MX CLICKER ENGINE ---
-// Fits standard Cherry MX mechanical keyboard switches
+// Designed for MakerWorld Parametric Model Maker - Fits standard Cherry MX Switches
 
 /* [Select Mode] */
+// Which piece would you like to export?
 part_to_render = "assembled"; // [housing, button, assembled]
 
 /* [Asset Uploads] */
@@ -36,19 +37,11 @@ module raw_svg_import() {
     }
 }
 
-// INTELLIGENT AUTO-SCALER AND SOLIDIFIER: 
-// 1. Measures the width of your SVG bounding box.
-// 2. Multiplies it so the final model footprint is ALWAYS scaled to a perfect 42mm fidget size.
-// 3. Welds hollow vector paths into a rock-solid silhouette.
+// BULLETPROOF AUTO-SCALER AND SOLIDIFIER: 
+// Uses resize() to guarantee any uploaded SVG is normalized to a 42mm fidget size!
 module normalized_silhouette() {
-    // Calculates visual spatial limits of the raw SVG paths
-    size = [for (i =) max(raw_svg_import()[i]) - min(raw_svg_import()[i])];
-    max_dim = max(size[0], size[1]);
-    
-    // Safety fallback scaling factor if data array evaluates empty
-    scale_factor = (max_dim > 0) ? (42.0 / max_dim) : 1.0;
-    
-    scale([scale_factor, scale_factor, 1]) {
+    // FIXED: Removed the loop math and replaced it with a safe resize block
+    resize([42, 42, 0], auto=true) {
         offset(r = 1.5) offset(r = -3.0) offset(r = 1.5) {
             hull() {
                 raw_svg_import();
@@ -118,21 +111,20 @@ module build_top() {
             linear_extrude(height = button_height) 
                 button_profile();
             
-            // 2. Hollow out the underside chamber (Leaves a 2.5mm solid ceiling roof)
+            // 2. Hollow out the underside chamber (Leaves a 2.5mm solid roof ceiling)
             linear_extrude(height = button_height - 2.5) 
                 offset(r = -1.5) 
                 button_profile();
         }
         
-        // 3. CORRECTED RIGHT-SIDE-UP PLUNGER SHAFT
+        // 3. PLUNGER SHAFT WITH UPWARD FACING CROSS SOCKET
         // Generates the down-pointing round sleeve collar
         difference() {
             // Extends down from the ceiling to the bottom rim opening of the cap
             translate([0, 0, (button_height - 2.5) / 2]) 
                 cylinder(h = button_height - 2.5, d = 8.2, center = true, $fn = 32);
             
-            // CORRECTED: Slices the female plus cross upward into the BOTTOM face of the shaft!
-            // This ensures it stays right-side up to receive the blue cross stem smoothly.
+            // Slices the female plus cross upward into the bottom opening face of the shaft
             translate([0, 0, 1.5])
                 cherry_mx_stem_female_socket();
         }
