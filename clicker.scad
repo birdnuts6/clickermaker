@@ -1,5 +1,5 @@
 // --- PARAMETRIC CHERRY MX FIDGET ENGINE ---
-// Designed for MakerWorld Customizer - True Cross Shaft Fix
+// Designed for MakerWorld Customizer - Text Engine Cross Fix
 
 /* [Select Mode] */
 part_to_render = "assembled"; // [housing, button, assembled]
@@ -71,20 +71,13 @@ module cherry_mx_base_socket() {
 }
 
 // FIXED PLUS-SIGN FEMALE STEM SOCKET
-// Generates two crisp perpendicular intersecting slot arms using bracket-free circle hulls
+// Renders a native geometric plus sign character to form the female stem pocket!
 module cherry_mx_stem_female_socket() {
-    linear_extrude(height = 9, center = true) {
-        // Slot arm 1: Horizontal slot line
-        // We stretch a tiny 1.25mm wide circle out to 4.3mm long by hulling two side-shifted points
-        hull() {
-            translate(2.15) circle(d = 1.25, $fn = 24);
-            translate(0 - 2.15) circle(d = 1.25, $fn = 24);
-        }
-        // Slot arm 2: Vertical slot line
-        // We do the exact same shift along the Y-axis to form a perfect right-angle intersection
-        hull() {
-            translate(0) circle(d = 1.25, $fn = 24);
-            translate(0) circle(d = 1.25, $fn = 24);
+    // 7.5mm extrusion height provides deep clearance engagement
+    linear_extrude(height = 7.5, center = true) {
+        // Generates a crisp mechanical cross by scaling the font geometries directly
+        offset(delta = 0.25) {
+            text(text = "+", font = "Liberation Sans:style=Bold", size = 5.2, halign = "center", valign = "center");
         }
     }
 }
@@ -121,7 +114,7 @@ module build_top() {
             translate([0, 0, (button_height - 2.5) / 2]) 
                 cylinder(h = button_height - 2.5, d = 8.5, center = true, $fn = 32);
             
-            // Slices the true double-hull cross socket upward into the bottom face of the plunger
+            // Slices the typography plus sign cross upward into the bottom face of the collar
             translate([0, 0, 1.2])
                 cherry_mx_stem_female_socket();
         }
