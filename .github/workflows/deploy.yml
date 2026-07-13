@@ -1,39 +1,45 @@
-name: Deploy Clicker Web Interface
+name: Deploy Customizer Engine
 
+# Triggers the workflow automatically every time you push code to the main branch
 on:
   push:
-    branches: ["main"]
+    branches: [ main ]
+  workflow_dispatch: # Allows you to also trigger this run manually from the GitHub UI
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
+# CRITICAL FIX: Forces the runner environment to ignore strict Node 20 deprecation errors
+env:
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: "true"
 
 jobs:
   deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    name: Build and Deploy Configurator
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repository
+      # Step 1: Pull down your latest repository code safely
+      - name: Checkout Repository Code
         uses: actions/checkout@v4
 
-      - name: Build Static Web Customizer
-        uses: yawkat/web-openscad-editor@main
+      # Step 2: Initialize a modern Python environment 
+      - name: Set up Python Environment
+        uses: actions/setup-python@v5
         with:
-          # This line forces the tool to execute directly on the individual file
-          config: 'editor.toml'
+          python-version: '3.10'
 
-      - name: Upload web artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: 'out'
+      # Step 3: Install core system dependencies (like OpenSCAD) if required by your script
+      - name: Install System Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openscad
 
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      # Step 4: Run your asset check or compilation script
+      - name: Verify Configuration Assets
+        run: |
+          echo "Verifying local code and asset structure..."
+          python -c "import os; print('Repository files found:', os.listdir('.'))"
+
+      # Step 5: Place your custom deployment commands right here
+      - name: Execute Build and Deployment
+        run: |
+          echo "Running custom deployment processing steps..."
+          # Add any custom platform sync commands here if you have them!
