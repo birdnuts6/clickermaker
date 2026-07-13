@@ -22,28 +22,33 @@ button_height = 8; // [5:1:15]
 tolerance = 0.4; // [0.1:0.05:0.8]
 
 /* [Hidden Settings] */
-// Uses MakerWorld's strict background file injection rule for the negative file
 core_file = "default.stl"; 
 floor_thickness = 3.0; 
 overcut = 0.1;        
 
 
 // --- AUTOMATED LAYER GENERATORS ---
-module outer_profile() {
-    // Falls back to a standard square layout if a user hasn't uploaded their SVG yet
+module raw_svg_import() {
     if (logo_file == "" || logo_file == "./" || logo_file == "default.svg") {
         minkowski() {
             square([26, 26], center = true);
             circle(r = 2, $fn = 16);
         }
     } else {
-        // Automatically grabs the user's uploaded custom vector file
         import(logo_file, center = true);
     }
 }
 
+// CRITICAL FIX: The hull() function takes your hollow outline vectors 
+// and fills the entire inside space solid like a silhouette wrap!
+module outer_profile() {
+    hull() {
+        raw_svg_import();
+    }
+}
+
 module inner_pocket_profile() {
-    // Mathematically calculates the interior cavity matching your custom shape
+    // Mathematically calculates the interior cavity using the filled silhouette
     offset(r = -wall_thickness) outer_profile();
 }
 
@@ -53,7 +58,6 @@ module button_profile() {
 }
 
 module mechanical_core() {
-    // Pulls the clicker mechanism geometry file
     import(core_file, center = true);
 }
 
@@ -70,7 +74,7 @@ module build_bottom() {
                 inner_pocket_profile();
         
         // Carves the clicker mechanism clear out of the bottom floor base
-        translate([0, 0, 0]) 
+        translate([0, 0, floor_thickness]) 
             mechanical_core();
     }
 }
