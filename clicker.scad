@@ -1,5 +1,5 @@
 // --- PARAMETRIC CHERRY MX FIDGET ENGINE ---
-// Designed for MakerWorld Customizer - Fits standard Cherry MX Switches
+// Designed for MakerWorld Customizer - Independent Plunger Shaft Fix
 
 /* [Select Mode] */
 // Which piece would you like to export?
@@ -26,21 +26,28 @@ floor_thickness = 4.0; // Thick base deck to seal out pin holes
 overcut = 0.1;        
 
 
-// --- AUTOMATED LAYER ENGINE ---
+// --- AUTOMATED LAYER ENGINE & SHAPE RESIZER ---
 
 module raw_svg_import() {
     if (logo_file == "" || logo_file == "./" || logo_file == "default.svg") {
-        circle(r = 22, $fn = 64); // Safe fallback circle definition
+        circle(r = 18, $fn = 64); // Safe fallback circle definition
     } else {
         // center=true forces MakerWorld to snap your custom asset bounding weight to (0,0)
         import(logo_file, center = true);
     }
 }
 
-// Crisp profile tracer that preserves the exact curves/points of your vector file
+// Auto-rescales ONLY the custom SVG drawing to a perfect 36mm handheld size!
+module auto_scaled_svg() {
+    resize([36, 36], auto=true) {
+        raw_svg_import();
+    }
+}
+
+// Generates the crisp outer footprint wall tracking your true shape paths
 module outer_profile() {
     render(convexity = 6) {
-        raw_svg_import();
+        auto_scaled_svg();
     }
 }
 
@@ -82,7 +89,7 @@ module cherry_mx_stem_female_socket() {
 
 module build_bottom() {
     difference() {
-        // 1. Extrude your true detailed SVG footprint shape
+        // 1. Extrude your true detailed, auto-rescaled SVG footprint shape
         linear_extrude(height = housing_height) 
             outer_profile();
         
@@ -98,6 +105,7 @@ module build_bottom() {
 }
 
 module build_top() {
+    // Isolating the plunger shaft by unioning it onto the cap AFTER the resize pass has completed!
     union() {
         difference() {
             // 1. Extrude the custom sliding cap based on your true custom SVG outline
@@ -110,14 +118,15 @@ module build_top() {
                 button_profile();
         }
         
-        // 3. ALIGNED PLUNGER SHAFT WITH UPRIGHT FEMALE CROSS
-        // Draws a solid cylinder collar from the ceiling down to the cap opening rim
+        // 3. PROTECTED PLUNGER SHAFT WITH FIXED SPECIFICATIONS
+        // Because this sits completely outside the outer_profile() resize pass, 
+        // it retains its exact dimensions and won't shrink when you change SVGs!
         difference() {
+            // Extends down from the ceiling to the bottom rim opening of the cap
             translate([0, 0, (button_height - 2.5) / 2]) 
                 cylinder(h = button_height - 2.5, d = 8.5, center = true, $fn = 32);
             
             // Slices the female cross pocket upward into the bottom face of the collar!
-            // This leaves it perfectly oriented right-side up to receive the switch stem.
             translate([0, 0, 1.2])
                 cherry_mx_stem_female_socket();
         }
