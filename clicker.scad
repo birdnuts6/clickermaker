@@ -1,72 +1,95 @@
-// --- PARAMETRIC FIDGET CLICKER ---
+// --- PARAMETRIC FIDGET CLICKER ENGINE ---
 
 /* [Main Configuration] */
 
-// Upload your custom vector outline file here
-logo_file = "./"; // [file:svg]
+// Controls what part is exported: "bottom", "top", or "assembled"
+render_mode = "assembled"; // [bottom, top, assembled]
 
-// Overall height of the clicker housing
+// Upload your custom vector outline file here
+logo_file = "default.svg"; 
+
+// Overall height of the outer clicker housing case
 housing_height = 15; // [10:1:25]
 
-// Overall height of the top button cap
+// Overall height of the plunging top character button
 button_height = 8; // [5:1:15]
 
-// Clearance buffer so parts fit together cleanly (3D printer tolerance)
-tolerance = 0.2; // [0.0:0.05:0.5]
+// Thickness of the outer retaining wall perimeter
+wall_thickness = 1.6; // [1.0:0.2:4.0]
 
+// Clearance buffer so parts slide smoothly together without binding
+tolerance = 0.4; // [0.1:0.05:0.8]
 
-/* [Hidden Mechanical Settings] */
-switch_hole = 14.0;       
-switch_depth = 11.0;      
-cross_size = 5.0;         
-stem_l = 1.35;            
+/* [Hidden Master Template Settings] */
+// The core file must be stored in the root of your repository
+core_file = "clicker_core_negative.stl";
 
-// --- MAIN LOGIC ---
+// --- DYNAMIC MODULES ---
 
-// 1. Bottom Housing Shell (Centered at 0,0)
-difference() {
-    // If no file is uploaded yet, draw a built-in 30mm x 30mm rounded square
-    if (logo_file == "") {
-        linear_extrude(height = housing_height) {
-            minkowski() {
-                square([26, 26], center = true);
-                circle(r = 2, $fn = 16);
-            }
+// 1. The full outside silhouette shape
+module outer_profile() {
+    if (logo_file == "" || logo_file == "./" || logo_file == "default.svg") {
+        minkowski() {
+            square([26, 26], center = true);
+            circle(r = 2, $fn = 16);
         }
     } else {
-        // If a user drops an SVG file in, extrude that file profile automatically
-        linear_extrude(height = housing_height) {
-            import(logo_file, center = true);
-        }
-    }
-
-    // Cut out the square socket cavity for the keyboard switch
-    translate([0, 0, housing_height - (switch_depth / 2) + 0.1]) {
-        cube([switch_hole + tolerance, switch_hole + tolerance, switch_depth], center = true);
+        import(logo_file, center = true);
     }
 }
 
-// 2. Top Button Cap (Shifted 40mm to the right so it doesn't overlap)
-translate([40, 0, 0]) {
-    difference() {
-        // If no file is uploaded yet, draw the matching cap block
-        if (logo_file =="./") {
-            linear_extrude(height = button_height) {
-                minkowski() {
-                    square([26, 26], center = true);
-                    circle(r = 2, $fn = 16);
-                }
-            }
-        } else {
-            linear_extrude(height = button_height) {
-                import(logo_file, center = true);
-            }
-        }
+// 2. The internal pocket profile (Shrunk by the wall thickness)
+module inner_pocket_profile() {
+    offset(r = -wall_thickness) outer_profile();
+}
 
-        // Cut out the Cherry MX cross stem connection underneath
-        translate([0, 0, 2.5]) {
-            cube([cross_size, stem_l, 5.0], center = true);
-            cube([stem_l, cross_size, 5.0], center = true);
-        }
+// 3. The sliding top button profile (Shrunk by wall thickness + printer tolerance)
+module button_profile() {
+    offset(r = -(wall_thickness + tolerance)) outer_profile();
+}
+
+// 4. The Master Mechanical Negative Core Stamp
+module mechanical_core() {
+    // Centers the 3D model perfectly at [0,0,0] to slice from the middle of the SVG geometry
+    import(core_file, center = true);
+}
+
+// --- MANUFACTURING ACTIONS ---
+
+module build_bottom() {
+    difference() {
+        // Extrude the main solid outer shell case
+        linear_extrude(height = housing_height, center = true) outer_profile();
+        
+        // Hollow out the top interior pocket (leaves a solid 3mm floor at the bottom)
+        translate([0, 0, 3])
+            linear_extrude(height = housing_height, center = true) inner_pocket_profile();
+            
+        // Stamp the custom 3D negative core out of the bottom center floor
+        translate([0, 0, -housing_height / 2])
+            mechanical_core();
     }
+}
+
+module build_top() {
+    difference() {
+        // Extrude the perfectly scaled plunging character button
+        linear_extrude(height = button_height, center = true) button_profile();
+        
+        // Stamp the matching top profile of the negative core out of the bottom of the button
+        translate([0, 0, -button_height / 2])
+            mechanical_core();
+    }
+}
+
+// --- AUTOMATED COMPILATION RENDERER ---
+
+if (render_mode == "bottom") {
+    build_bottom();
+} else if (render_mode == "top") {
+    build_top();
+} else if (render_mode == "assembled") {
+    // Visual layout preview: Bottom shell on the left, top button shifted 40mm right
+    color("LightSlateGray") build_bottom();
+    translate([40, 0, 0]) color("Orange") build_top();
 }
