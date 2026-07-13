@@ -6,11 +6,8 @@
 part_to_render = "assembled"; // [housing, button, assembled]
 
 /* [Asset Uploads] */
-// Upload a custom picture (PNG or JPEG) to shape your clicker!
-logo_file = "default.png"; 
-
-// Upload your physical negative clicker mechanism file here!
-core_file = "default.stl"; 
+// Upload a custom vector shape to layout your clicker!
+logo_file = "default.svg"; 
 
 /* [Housing Dimensions] */
 // Overall height of the outer clicker housing case (mm)
@@ -25,41 +22,38 @@ button_height = 8; // [5:1:15]
 tolerance = 0.4; // [0.1:0.05:0.8]
 
 /* [Hidden Settings] */
+// Uses MakerWorld's strict background file injection rule for the negative file
+core_file = "default.stl"; 
 floor_thickness = 3.0; 
 overcut = 0.1;        
 
 
-// --- FIXED 3D IMAGE PROCESSOR ---
-module outer_profile_3d() {
-    if (logo_file == "" || logo_file == "./" || logo_file == "default.png") {
-        // Fallback default shape if no image is uploaded
-        linear_extrude(height = 1)
+// --- AUTOMATED LAYER GENERATORS ---
+module outer_profile() {
+    // Falls back to a standard square layout if a user hasn't uploaded their SVG yet
+    if (logo_file == "" || logo_file == "./" || logo_file == "default.svg") {
         minkowski() {
             square([26, 26], center = true);
             circle(r = 2, $fn = 16);
         }
     } else {
-        // CORRECTED IMAGE LOADER: Uses surface() to read raw PNG/JPG pixels safely
-        scale([0.2, 0.2, 0.1]) // Scales a large image down to normal clicker toy proportions
-            surface(file = logo_file, center = true, invert = true);
+        // Automatically grabs the user's uploaded custom vector file
+        import(logo_file, center = true);
     }
 }
 
-// Converts the 3D height-map profile back to flat 2D layers for nesting offsets
-module outer_profile_2d() {
-    projection(cut = false) 
-        outer_profile_3d();
-}
-
 module inner_pocket_profile() {
-    offset(r = -wall_thickness) outer_profile_2d();
+    // Mathematically calculates the interior cavity matching your custom shape
+    offset(r = -wall_thickness) outer_profile();
 }
 
 module button_profile() {
-    offset(r = -(wall_thickness + tolerance)) outer_profile_2d();
+    // Calculates the nesting top piece size minus print tolerances
+    offset(r = -(wall_thickness + tolerance)) outer_profile();
 }
 
 module mechanical_core() {
+    // Pulls the clicker mechanism geometry file
     import(core_file, center = true);
 }
 
@@ -67,28 +61,26 @@ module mechanical_core() {
 // --- MANUFACTURING ACTIONS ---
 module build_bottom() {
     difference() {
-        // Extrude the base using the image's 2D vector outline boundary
         linear_extrude(height = housing_height) 
-            outer_profile_2d();
+            outer_profile();
         
-        // Hollow out the nesting case walls
+        // Carves out the interior nesting slot
         translate([0, 0, floor_thickness]) 
             linear_extrude(height = housing_height - floor_thickness + overcut) 
                 inner_pocket_profile();
         
-        // Stamp out the mechanical core
-        translate([0, 0, floor_thickness]) 
+        // Carves the clicker mechanism clear out of the bottom floor base
+        translate([0, 0, 0]) 
             mechanical_core();
     }
 }
 
 module build_top() {
     difference() {
-        // Extrude the plunging cap using the scaled offset profile
         linear_extrude(height = button_height) 
             button_profile();
         
-        // Stamp the core out of the bottom of the top cap
+        // Carves the clicker mechanism out of the underside of the button cap
         translate([0, 0, 0]) 
             mechanical_core();
     }
