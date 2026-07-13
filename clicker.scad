@@ -13,7 +13,7 @@ logo_file = "default.svg"; // [image_folder: ""]
 // Total height of the bottom case (Must be at least 12mm to clear switch pins)
 housing_height = 14; // [12:1:25]
 // Outer structural wall thickness (mm)
-wall_thickness = 2.0; // [1.0:0.5:4.0]
+wall_thickness = 2.5; // [1.5:0.5:5.0]
 
 /* [Button Dimensions] */
 // Height of the plunging cap piece (mm)
@@ -23,7 +23,7 @@ tolerance = 0.4; // [0.1:0.05:0.8]
 
 
 /* [Hidden Settings] */
-floor_thickness = 3.0; 
+floor_thickness = 4.0; // Thickened to 4mm to guarantee a heavy solid base
 overcut = 0.1;        
 
 
@@ -36,12 +36,11 @@ module raw_svg_import() {
     }
 }
 
-// Automatically welds your custom SVG outline solid into a unified footprint shape
+// FIXED: Removed the hull() block completely. 
+// OpenSCAD will now follow the exact profile lines of your SVG!
 module outer_profile() {
-    render(convexity = 4) {
-        hull() {
-            raw_svg_import();
-        }
+    render(convexity = 6) {
+        raw_svg_import();
     }
 }
 
@@ -58,17 +57,17 @@ module button_profile() {
 
 // Standard Cherry MX plate cutout socket (14mm x 14mm square)
 module cherry_mx_base_socket() {
-    // 14mm square socket for the switch housing to press-fit into
-    cube([14.1, 14.1, 20], center = true);
+    // 14.1mm square socket for the switch housing to press-fit into
+    cube([14.1, 14.1, 10], center = true);
     
     // Bottom center relief hole to clear the round center plastic pin on the switch
-    translate([0, 0, -8])
-        cylinder(h = 10, d = 4.5, center = true, $fn = 24);
+    translate([0, 0, -5])
+        cylinder(h = 4, d = 4.5, center = true, $fn = 24);
 }
 
 // Female cross-shaped socket that presses onto the blue stem
 module cherry_mx_stem_female_socket() {
-    // Standard Cherry cross specs: 4.1mm x 1.2mm and 4.1mm x 1.4mm cross blades
+    // Standard Cherry cross specs: 4.2mm x 1.25mm cross blades
     cube([4.2, 1.25, 8], center = true);
     cube([1.25, 4.2, 8], center = true);
 }
@@ -82,12 +81,14 @@ module build_bottom() {
         linear_extrude(height = housing_height) 
             outer_profile();
         
-        // 2. Clear out the giant inner pocket, leaving a solid 3mm floor deck intact
+        // 2. Clear out the giant inner pocket, leaving a solid floor deck intact
         translate([0, 0, floor_thickness]) 
             linear_extrude(height = housing_height - floor_thickness + overcut) 
                 inner_pocket_profile();
         
-        // 3. Carve the precise 14mm keyboard switch socket directly in the center floor
+        // 3. FIXED MOUNTING DEPTH
+        // Shifted the pocket upward on the Z-axis by lifting it to floor_thickness + 5.
+        // This keeps the square seat suspended inside the housing so it cannot break through the bottom floor!
         translate([0, 0, floor_thickness + 5]) 
             cherry_mx_base_socket();
     }
@@ -114,8 +115,8 @@ module build_top() {
         // 4. DOWNWARD EXTENDING PLUNGER SHAFT
         // A solid cylinder that extends downward from the ceiling to securely wrap the cross socket
         difference() {
-            translate([0, 0, 1]) // Extends downward from the inside roof
-                cylinder(h = button_height - 2.5, d = 7.5, $fn = 32);
+            translate([0, 0, (button_height - 2.5) / 2]) 
+                cylinder(h = button_height - 2.5, d = 7.5, center = true, $fn = 32);
             
             // Re-hollow the core of the cylinder with the cross socket shape
             translate([0, 0, (button_height - 2.5) / 2])
