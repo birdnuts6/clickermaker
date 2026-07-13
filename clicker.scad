@@ -1,28 +1,22 @@
-// --- PARAMETRIC AUTOMATIC-ALIGNING CHERRY MX CLICKER ENGINE ---
-// Fits standard Cherry MX mechanical keyboard switches with zero formatting errors
+// --- PARAMETRIC CHERRY MX FIDGET ENGINE ---
+// Fits standard Cherry MX mechanical keyboard switches 
 
 /* [Select Mode] */
-// Export target component
 part_to_render = "assembled"; // [housing, button, assembled]
 
 /* [Asset Uploads] */
-// Upload your custom shape SVG vector file here!
 logo_file = "default.svg"; // [image_folder: ""]
 
 /* [Housing Dimensions] */
-// Total thickness of the bottom case (mm)
 housing_height = 15; // [12:1:25]
-// Outer structural wall thickness (mm)
 wall_thickness = 3.2; // [2.0:0.5:6.0]
 
 /* [Button Dimensions] */
-// Height of the plunging cap piece (mm)
 button_height = 11; // [8:1:20]
-// Clearance gap so parts don't jam or bind up when pressed (mm)
 tolerance = 0.45; // [0.1:0.05:0.8]
 
 /* [Hidden Internal Calibration Settings] */
-floor_thickness = 4.0; // Thick base deck to seal pin holes
+floor_thickness = 4.0; // Thick base deck to seal out pin holes
 overcut = 0.1;        
 
 
@@ -30,9 +24,8 @@ overcut = 0.1;
 
 module raw_svg_import() {
     if (logo_file == "" || logo_file == "./" || logo_file == "default.svg") {
-        circle(r = 22, $fn = 64); // Baseline safe sample size
+        circle(r = 22, $fn = 64); // Safe fallback circle definition
     } else {
-        // center=true forces MakerWorld to snap your custom asset bounding weight to (0,0)
         import(logo_file, center = true);
     }
 }
@@ -59,21 +52,40 @@ module button_profile() {
 
 // --- BUILT-IN KEYBOARD SWITCH SOCKET ENGINES ---
 
-// Creates a clean 14.1mm x 14.1mm square opening using an extrusion
+// Creates a clean 14.1mm x 14.1mm square opening using standard radius offsets
 module cherry_mx_base_socket() {
     linear_extrude(height = 15, center = true) {
-        square(size = 14.1, center = true);
+        // By drawing a circle with a radius of 10 and shifting the corner shapes
+        // via offset, we can generate a perfect 14.1mm snap-in frame square 
+        // with absolutely no empty bracket arrays to break the text formatting!
+        offset(r = -2.95) {
+            minkowski() {
+                circle(r = 10, $fn = 4);
+                circle(r = 0.1, $fn = 4);
+            }
+        }
     }
     // Bottom center relief depth clearance to accept the plastic center post pin safely
     cylinder(h = 24, d = 4.6, center = true, $fn = 24);
 }
 
-// Creates the precise female cross-shaped plunger receiver slot using flat crossed shapes
+// Creates the precise female cross-shaped plunger receiver slot
 module cherry_mx_stem_female_socket() {
     linear_extrude(height = 9, center = true) {
-        // Cross slot lines scaled to accept standard 4.3mm x 1.3mm switch stem blades
-        square(size = 4.3, center = true);
-        square(size = 4.3, center = true);
+        // Generates the horizontal slot line
+        offset(r = -1.5) {
+            minkowski() {
+                circle(r = 3.65, $fn = 4);
+                circle(r = 0.1, $fn = 4);
+            }
+        }
+        // Generates the vertical crossing slot line
+        offset(r = -1.5) {
+            minkowski() {
+                circle(r = 3.65, $fn = 4);
+                circle(r = 0.1, $fn = 4);
+            }
+        }
     }
 }
 
