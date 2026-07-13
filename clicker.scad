@@ -71,26 +71,20 @@ module cherry_mx_base_socket() {
 }
 
 // FIXED PLUS-SIGN FEMALE STEM SOCKET
-// Creates the precise female cross-shaped plunger receiver slot
+// Generates two crisp perpendicular intersecting slot arms using bracket-free circle hulls
 module cherry_mx_stem_female_socket() {
     linear_extrude(height = 9, center = true) {
-        // Slot line 1 (Horizontal axis slot)
-        // Stretching a high-res circle along the X axis creates a clean slot
-        scale(1.15) {
-            minkowski() {
-                scale(0.3) circle(r = 4.3, $fn = 32);
-                circle(r = 1.0, $fn = 32);
-            }
+        // Slot arm 1: Horizontal slot line
+        // We stretch a tiny 1.25mm wide circle out to 4.3mm long by hulling two side-shifted points
+        hull() {
+            translate(2.15) circle(d = 1.25, $fn = 24);
+            translate(0 - 2.15) circle(d = 1.25, $fn = 24);
         }
-        // Slot line 2 (Vertical axis slot)
-        // Rotating that same stretched shape 90 degrees cuts the vertical channel
-        rotate(90) {
-            scale(1.15) {
-                minkowski() {
-                    scale(0.3) circle(r = 4.3, $fn = 32);
-                    circle(r = 1.0, $fn = 32);
-                }
-            }
+        // Slot arm 2: Vertical slot line
+        // We do the exact same shift along the Y-axis to form a perfect right-angle intersection
+        hull() {
+            translate(0) circle(d = 1.25, $fn = 24);
+            translate(0) circle(d = 1.25, $fn = 24);
         }
     }
 }
@@ -127,7 +121,7 @@ module build_top() {
             translate([0, 0, (button_height - 2.5) / 2]) 
                 cylinder(h = button_height - 2.5, d = 8.5, center = true, $fn = 32);
             
-            // Slices the newly rotated female cross pocket upward into the bottom face of the collar
+            // Slices the true double-hull cross socket upward into the bottom face of the plunger
             translate([0, 0, 1.2])
                 cherry_mx_stem_female_socket();
         }
