@@ -22,7 +22,7 @@ tolerance = 0.4; // [0.1:0.05:0.8]
 
 /* [Hidden Master Template Settings] */
 // Ensure clicker_core_negative.stl is stored in the root folder of your repo!
-core_file = "clicker_core_negative.stl";
+core_file = "default.stl";
 floor_thickness = 3.0; // Fixed floor thickness at the bottom of the case
 overcut = 0.1;        // Small padding to prevent zero-thickness rendering errors
 
