@@ -30,33 +30,35 @@ overcut = 0.1;
 // --- AUTOMATED LAYER GENERATORS ---
 module raw_svg_import() {
     if (logo_file == "" || logo_file == "./" || logo_file == "default.svg") {
-        // FIXED: Swapped out the square shape for a circle command to bypass the syntax glitch completely!
         circle(r = 15, $fn = 64);
     } else {
-        // center=true forces MakerWorld to snap your custom asset bounding box to (0,0)
         import(logo_file, center = true);
     }
 }
 
-// Fills your outline SVG solid into a silhouette footprint
-module outer_profile() {
+// Bakes the loose SVG outline into a solid silhouette footprint
+module solid_silhouette() {
     hull() {
         raw_svg_import();
     }
 }
 
+// FIXED: Using render() pre-computes the 2D layout cache so the offset math never triggers a parsing syntax failure!
+module outer_profile() {
+    render(convexity = 4) {
+        solid_silhouette();
+    }
+}
+
 module inner_pocket_profile() {
-    // Calculates the interior housing cavity
-    offset(r = -wall_thickness) outer_profile();
+    offset(r = 0 - wall_thickness) outer_profile();
 }
 
 module button_profile() {
-    // Calculates the sliding top piece with a built-in clearance buffer
-    offset(r = -(wall_thickness + tolerance)) outer_profile();
+    offset(r = 0 - (wall_thickness + tolerance)) outer_profile();
 }
 
 module mechanical_core() {
-    // Locks your clicker mechanism stl directly onto the (0,0) origin
     import(core_file, center = true);
 }
 
@@ -84,7 +86,7 @@ module build_top() {
             button_profile();
         
         // Stamps the core straight out of the underside of the button cap
-        translate() 
+        translate([0, 0, 0]) 
             mechanical_core();
     }
 }
@@ -96,7 +98,6 @@ if (part_to_render == "housing") {
 } else if (part_to_render == "button") {
     build_top();
 } else if (part_to_render == "assembled") {
-    // Displays parts stacked vertically so you can verify alignment immediately
     color("LightSlateGray") build_bottom();
     translate([0, 0, housing_height + 5]) color("Orange") build_top();
 }
