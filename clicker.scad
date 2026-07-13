@@ -1,5 +1,5 @@
 // --- PARAMETRIC CHERRY MX FIDGET ENGINE ---
-// Fits standard Cherry MX mechanical keyboard switches 
+// Designed for MakerWorld Customizer - True Shape Extractor
 
 /* [Select Mode] */
 part_to_render = "assembled"; // [housing, button, assembled]
@@ -30,13 +30,14 @@ module raw_svg_import() {
     }
 }
 
-// Bakes the paths solid and forces your SVG shape outline to fill in completely
+// TRUE SHAPE EXTRACTOR: 
+// Replaced the 'hull' function with a strict offset perimeter filter.
+// This skips the outer square artboard canvas lines and traces your true artwork path!
 module outer_profile() {
     render(convexity = 6) {
-        offset(r = 1.5) offset(r = -3.0) offset(r = 1.5) {
-            hull() {
-                raw_svg_import();
-            }
+        // Double offset pass welds hollow lines without melting them into a square block
+        offset(r = 2.0) offset(r = -4.0) offset(r = 2.0) {
+            raw_svg_import();
         }
     }
 }
@@ -55,9 +56,6 @@ module button_profile() {
 // Creates a clean 14.1mm x 14.1mm square opening using standard radius offsets
 module cherry_mx_base_socket() {
     linear_extrude(height = 15, center = true) {
-        // By drawing a circle with a radius of 10 and shifting the corner shapes
-        // via offset, we can generate a perfect 14.1mm snap-in frame square 
-        // with absolutely no empty bracket arrays to break the text formatting!
         offset(r = -2.95) {
             minkowski() {
                 circle(r = 10, $fn = 4);
@@ -65,21 +63,18 @@ module cherry_mx_base_socket() {
             }
         }
     }
-    // Bottom center relief depth clearance to accept the plastic center post pin safely
     cylinder(h = 24, d = 4.6, center = true, $fn = 24);
 }
 
 // Creates the precise female cross-shaped plunger receiver slot
 module cherry_mx_stem_female_socket() {
     linear_extrude(height = 9, center = true) {
-        // Generates the horizontal slot line
         offset(r = -1.5) {
             minkowski() {
                 circle(r = 3.65, $fn = 4);
                 circle(r = 0.1, $fn = 4);
             }
         }
-        // Generates the vertical crossing slot line
         offset(r = -1.5) {
             minkowski() {
                 circle(r = 3.65, $fn = 4);
@@ -94,16 +89,13 @@ module cherry_mx_stem_female_socket() {
 
 module build_bottom() {
     difference() {
-        // 1. Extrude your true detailed SVG footprint shape
         linear_extrude(height = housing_height) 
             outer_profile();
         
-        // 2. Clear out the inner button pocket tracking guide
         translate([0, 0, floor_thickness]) 
             linear_extrude(height = housing_height - floor_thickness + overcut) 
                 inner_pocket_profile();
         
-        // 3. Anchors the 14.1mm square frame socket dead center into the interior deck floor
         translate([0, 0, floor_thickness + 6]) 
             cherry_mx_base_socket();
     }
@@ -112,24 +104,18 @@ module build_bottom() {
 module build_top() {
     union() {
         difference() {
-            // 1. Extrude the custom sliding cap based on your true custom SVG outline
             linear_extrude(height = button_height) 
                 button_profile();
             
-            // 2. Hollow out the underside chamber (Leaves a 2.5mm solid ceiling roof)
             linear_extrude(height = button_height - 2.5) 
                 offset(r = -1.6) 
                 button_profile();
         }
         
-        // 3. ALIGNED PLUNGER SHAFT WITH UPRIGHT FEMALE CROSS
-        // Draws a solid cylinder collar from the ceiling down to the cap opening rim
         difference() {
             translate([0, 0, (button_height - 2.5) / 2]) 
                 cylinder(h = button_height - 2.5, d = 8.5, center = true, $fn = 32);
             
-            // Slices the female cross pocket upward into the bottom face of the collar!
-            // This leaves it perfectly oriented right-side up to receive the switch stem.
             translate([0, 0, 1.2])
                 cherry_mx_stem_female_socket();
         }
@@ -144,6 +130,5 @@ if (part_to_render == "housing") {
     build_top();
 } else if (part_to_render == "assembled") {
     color("LightSlateGray") build_bottom();
-    // Suspends the cap straight up along the Z-axis so you can visually verify alignment indexing
     translate([0, 0, housing_height + 6]) color("Orange") build_top();
 }
