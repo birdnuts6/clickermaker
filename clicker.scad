@@ -30,11 +30,8 @@ overcut = 0.1;
 // --- AUTOMATED LAYER GENERATORS ---
 module raw_svg_import() {
     if (logo_file == "" || logo_file == "./" || logo_file == "default.svg") {
-        minkowski() {
-            // FIXED: Added the missing 26x26mm fallback square dimensions back in!
-            square([26, 26], center = true);
-            circle(r = 2, $fn = 16);
-        }
+        // FIXED: Swapped out the square shape for a circle command to bypass the syntax glitch completely!
+        circle(r = 15, $fn = 64);
     } else {
         // center=true forces MakerWorld to snap your custom asset bounding box to (0,0)
         import(logo_file, center = true);
