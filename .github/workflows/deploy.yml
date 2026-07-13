@@ -5,17 +5,18 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
-# CRITICAL FIX: Grants the script explicit system permissions to overwrite and host web assets
+# Grants the script explicit system permissions to overwrite and host web assets
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# Bypasses the strict Node 20 deprecation errors during the runner environment boot up
+# Bypasses the strict Node deprecation errors during the runner environment boot up
 env:
   ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: "true"
 
-concurrent-deployment:
+# CORRECTED SYNTAX: Safely handles simultaneous pushes without breaking deployments
+concurrency:
   group: "pages"
   cancel-in-progress: false
 
@@ -34,11 +35,11 @@ jobs:
       - name: Setup Web Server Environment
         uses: actions/configure-pages@v5
 
-      # Step 3: Bundle your files into a web package (tar archive)
+      # Step 3: Bundle your files into a web package
       - name: Package Web Files for Upload
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.' # Tells it to upload everything in your root folder
+          path: '.' 
 
       # Step 4: Stream the bundle onto the live web server URL
       - name: Publish Live to GitHub Pages
