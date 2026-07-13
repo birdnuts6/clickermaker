@@ -1,7 +1,6 @@
 // --- PARAMETRIC FIDGET CLICKER ENGINE ---
 
 /* [Web Customizer Parameters] */
-
 // Controlled by the web UI drop-down menu
 part_to_render = "assembled"; // [housing, button, assembled]
 
@@ -24,10 +23,11 @@ tolerance = 0.4; // [0.1:0.05:0.8]
 /* [Hidden Master Template Settings] */
 // Ensure clicker_core_negative.stl is stored in the root folder of your repo!
 core_file = "clicker_core_negative.stl";
+floor_thickness = 3.0; // Fixed floor thickness at the bottom of the case
+overcut = 0.1;        // Small padding to prevent zero-thickness rendering errors
 
 
 // --- DYNAMIC LAYER GENERATORS ---
-
 module outer_profile() {
     if (logo_file == "" || logo_file == "./" || logo_file == "default.svg") {
         minkowski() {
@@ -53,42 +53,45 @@ module mechanical_core() {
 
 
 // --- MANUFACTURING ACTIONS ---
-
 module build_bottom() {
     difference() {
-        // Extrude the main solid outer shell case
-        linear_extrude(height = housing_height, center = true) outer_profile();
+        // 1. Extrude the main solid outer shell flat on the bed (Z=0 to Z=housing_height)
+        linear_extrude(height = housing_height) 
+            outer_profile();
         
-        // Hollow out the top interior pocket (leaves a solid 3mm floor at the bottom)
-        translate([0, 0, 3])
-            linear_extrude(height = housing_height, center = true) inner_pocket_profile();
-            
-        // Stamp the custom 3D negative core out of the bottom center floor
-        translate([0, 0, -housing_height / 2])
+        // 2. Hollow out the interior pocket, leaving a solid floor at the bottom
+        // Added 'overcut' to the height so it completely cuts through the top face cleanly
+        translate([0, 0, floor_thickness]) 
+            linear_extrude(height = housing_height - floor_thickness + overcut) 
+                inner_pocket_profile();
+        
+        // 3. Stamp the mechanical core into the bottom floor 
+        // This sits flat on the bed and cuts into the 3mm floor
+        translate([0, 0, 0]) 
             mechanical_core();
     }
 }
 
 module build_top() {
     difference() {
-        // Extrude the perfectly scaled plunging character button
-        linear_extrude(height = button_height, center = true) button_profile();
+        // 1. Extrude the button flat on the bed
+        linear_extrude(height = button_height) 
+            button_profile();
         
-        // Stamp the matching top profile of the negative core out of the bottom of the button
-        translate([0, 0, -button_height / 2])
+        // 2. Stamp the core out of the bottom of the button
+        translate([0, 0, 0]) 
             mechanical_core();
     }
 }
 
 
 // --- LIVE PAGE RENDERING ---
-
 if (part_to_render == "housing") {
     build_bottom();
 } else if (part_to_render == "button") {
     build_top();
 } else if (part_to_render == "assembled") {
-    // Visual layout preview: Shell on left, top button shifted 40mm right
+    // Visual layout preview: Shell on left, top button shifted 40mm right and lifted to show assembly
     color("LightSlateGray") build_bottom();
     translate([40, 0, 0]) color("Orange") build_top();
 }
