@@ -35,40 +35,30 @@ module raw_svg_import() {
             circle(r = 2, $fn = 16);
         }
     } else {
+        // center=true forces MakerWorld to snap your custom asset bounding box to (0,0)
         import(logo_file, center = true);
     }
 }
 
-// Generates the filled silhouette shape
-module raw_hull_profile() {
+// Fills your outline SVG solid into a silhouette footprint
+module outer_profile() {
     hull() {
         raw_svg_import();
     }
 }
 
-// CRITICAL ALIGNMENT FIX: 
-// This module grabs the true bounding box dimensions of your shape 
-// and shifts it mathematically so its exact center point rests on (0,0)
-module outer_profile() {
-    // Calculates the physical bounding dimensions of your custom SVG
-    size = [for (i =) max(raw_hull_profile()[i]) - min(raw_hull_profile()[i])];
-    offset_x = (max(raw_hull_profile()[0]) + min(raw_hull_profile()[0])) / 2;
-    offset_y = (max(raw_hull_profile()[1]) + min(raw_hull_profile()[1])) / 2;
-    
-    // Automatically pulls the profile back to absolute center alignment
-    translate([-offset_x, -offset_y, 0])
-        raw_hull_profile();
-}
-
 module inner_pocket_profile() {
+    // Calculates the interior housing cavity
     offset(r = -wall_thickness) outer_profile();
 }
 
 module button_profile() {
+    // Calculates the sliding top piece with a built-in clearance buffer
     offset(r = -(wall_thickness + tolerance)) outer_profile();
 }
 
 module mechanical_core() {
+    // Locks your clicker mechanism stl directly onto the (0,0) origin
     import(core_file, center = true);
 }
 
@@ -84,7 +74,7 @@ module build_bottom() {
             linear_extrude(height = housing_height - floor_thickness + overcut) 
                 inner_pocket_profile();
         
-        // Carves the clicker mechanism clear out of the bottom floor base
+        // Stamps the clicker core clean out of the housing floor
         translate([0, 0, floor_thickness]) 
             mechanical_core();
     }
@@ -95,7 +85,7 @@ module build_top() {
         linear_extrude(height = button_height) 
             button_profile();
         
-        // Carves the clicker mechanism out of the underside of the button cap
+        // Stamps the core straight out of the underside of the button cap
         translate([0, 0, 0]) 
             mechanical_core();
     }
@@ -108,7 +98,7 @@ if (part_to_render == "housing") {
 } else if (part_to_render == "button") {
     build_top();
 } else if (part_to_render == "assembled") {
-    // Splits them visually on screen so you can confirm alignment easily
+    // Displays parts stacked vertically so you can verify alignment immediately
     color("LightSlateGray") build_bottom();
     translate([0, 0, housing_height + 5]) color("Orange") build_top();
 }
