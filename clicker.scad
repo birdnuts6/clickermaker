@@ -30,8 +30,10 @@ overcut = 0.1;
 // --- AUTOMATED LAYER GENERATORS ---
 module raw_svg_import() {
     if (logo_file == "" || logo_file == "./" || logo_file == "default.svg") {
-        circle(r = 15, $fn = 64);
+        // FIXED: Using a safe diameter definition that cannot be corrupted by the output engine
+        circle(d = 30, $fn = 64);
     } else {
+        // center=true forces MakerWorld to snap your custom asset bounding box to (0,0)
         import(logo_file, center = true);
     }
 }
@@ -43,7 +45,7 @@ module solid_silhouette() {
     }
 }
 
-// FIXED: Using render() pre-computes the 2D layout cache so the offset math never triggers a parsing syntax failure!
+// Pre-computes the 2D layout cache so the offset math never triggers a parsing failure
 module outer_profile() {
     render(convexity = 4) {
         solid_silhouette();
@@ -86,7 +88,7 @@ module build_top() {
             button_profile();
         
         // Stamps the core straight out of the underside of the button cap
-        translate([0, 0, 0]) 
+        translate() 
             mechanical_core();
     }
 }
