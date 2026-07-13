@@ -36,18 +36,17 @@ module raw_svg_import() {
     }
 }
 
-// FLOOD FILL ENGINE: Melts the hollow outline paths into a single solid core silhouette
+// BULLETPROOF SOLIDIFIER: Shrinks down inner loops, expands boundaries, 
+// and welds double stroke walls into an absolute solid core footprint.
 module solid_silhouette() {
-    minkowski() {
-        hull() {
-            raw_svg_import();
-        }
-        // Creates a micro-buffer that floods and patches internal vector gaps safely
-        circle(r = 0.1, $fn = 8);
-    }
+    offset(r = 2) 
+        offset(r = -4) 
+            offset(r = 2)
+                hull() {
+                    raw_svg_import();
+                }
 }
 
-// Pre-computes the solid 2D layout cache so the wall offsets look crisp and uniform
 module outer_profile() {
     render(convexity = 4) {
         solid_silhouette();
@@ -62,8 +61,15 @@ module button_profile() {
     offset(r = 0 - (wall_thickness + tolerance)) outer_profile();
 }
 
-module mechanical_core() {
-    import(core_file, center = true);
+// HOUSING CORE FLATTENER: Clips the underside of the STL core 
+// so it physically can never punch out of the bottom floor.
+module mechanical_core_clamped() {
+    intersection() {
+        import(core_file, center = true);
+        // Creates a safety shield box that protects anything below Z=0 from being carved
+        translate([0, 0, 50]) 
+            cube([200, 200, 100], center = true);
+    }
 }
 
 
@@ -78,9 +84,9 @@ module build_bottom() {
             linear_extrude(height = housing_height - floor_thickness + overcut) 
                 inner_pocket_profile();
         
-        // Stamps the clicker core clean out of the housing floor
+        // Stamps the clicker core starting precisely at the floor level
         translate([0, 0, floor_thickness]) 
-            mechanical_core();
+            mechanical_core_clamped();
     }
 }
 
@@ -90,8 +96,8 @@ module build_top() {
             button_profile();
         
         // Stamps the core straight out of the underside of the button cap
-        translate() 
-            mechanical_core();
+        translate([0, 0, 0]) 
+            mechanical_core_clamped();
     }
 }
 
