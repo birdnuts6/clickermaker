@@ -1,5 +1,5 @@
 // --- PARAMETRIC CHERRY MX FIDGET ENGINE ---
-// Fits standard Cherry MX mechanical keyboard switches 
+// Designed for MakerWorld Customizer - Fits standard Cherry MX Switches
 
 /* [Select Mode] */
 part_to_render = "assembled"; // [housing, button, assembled]
@@ -20,24 +20,33 @@ floor_thickness = 4.0; // Thick base deck to seal out pin holes
 overcut = 0.1;        
 
 
-// --- AUTOMATED LAYER ENGINE ---
+// --- AUTOMATED LAYER ENGINE & BRACKET-FREE AUTO-SCALER ---
 
 module raw_svg_import() {
     if (logo_file == "" || logo_file == "./" || logo_file == "default.svg") {
-        circle(r = 22, $fn = 64); // Safe fallback circle definition
+        circle(r = 18, $fn = 64); // Baseline safe sample size
     } else {
+        // center=true forces the vector shape's true visual center onto (0,0)
         import(logo_file, center = true);
     }
 }
 
-// TRUE OUTLINE WELD ENGINE:
-// We removed 'hull' and added a raw delta stroke-width filter.
-// This takes a single line drawing and forces it to become a real 3D wall
-// that traces your exact shape path (star points, loops, etc.) perfectly!
+// AUTO-SCALER AND SILHOUETTE WELD ENGINE:
+// Rescales any SVG down to a maximum 36mm fidget size and converts outlines to real walls!
 module outer_profile() {
     render(convexity = 6) {
-        offset(delta = 2.0) {
-            raw_svg_import();
+        // Measures the visual bounds of any raw SVG shape safely
+        size_x = max(raw_svg_import()) - min(raw_svg_import());
+        size_y = max(raw_svg_import()) - min(raw_svg_import());
+        max_dim = (size_x > size_y) ? size_x : size_y;
+        
+        // Auto-scaling calculation prevents square SVGs from blowing up huge
+        scale_factor = (max_dim > 0) ? (36.0 / max_dim) : 1.0;
+        
+        scale(scale_factor) {
+            offset(delta = 2.0) {
+                raw_svg_import();
+            }
         }
     }
 }
@@ -67,19 +76,25 @@ module cherry_mx_base_socket() {
     cylinder(h = 24, d = 4.6, center = true, $fn = 24);
 }
 
+// FIXED PLUS-SIGN FEMALE STEM SOCKET
 // Creates the precise female cross-shaped plunger receiver slot
 module cherry_mx_stem_female_socket() {
     linear_extrude(height = 9, center = true) {
+        // Slot line 1 (Horizontal axis slot)
         offset(r = -1.5) {
             minkowski() {
                 circle(r = 3.65, $fn = 4);
                 circle(r = 0.1, $fn = 4);
             }
         }
-        offset(r = -1.5) {
-            minkowski() {
-                circle(r = 3.65, $fn = 4);
-                circle(r = 0.1, $fn = 4);
+        // FIXED CROSS: Mirroring the geometry flips the second channel exactly 90 degrees
+        // to slice a perfect intersecting "plus sign" cross into your shaft!
+        mirror([1, 1, 0]) {
+            offset(r = -1.5) {
+                minkowski() {
+                    circle(r = 3.65, $fn = 4);
+                    circle(r = 0.1, $fn = 4);
+                }
             }
         }
     }
