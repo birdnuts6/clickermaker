@@ -39,21 +39,32 @@ module raw_svg_import() {
     }
 }
 
-// CRITICAL FIX: The hull() function takes your hollow outline vectors 
-// and fills the entire inside space solid like a silhouette wrap!
-module outer_profile() {
+// Generates the filled silhouette shape
+module raw_hull_profile() {
     hull() {
         raw_svg_import();
     }
 }
 
+// CRITICAL ALIGNMENT FIX: 
+// This module grabs the true bounding box dimensions of your shape 
+// and shifts it mathematically so its exact center point rests on (0,0)
+module outer_profile() {
+    // Calculates the physical bounding dimensions of your custom SVG
+    size = [for (i =) max(raw_hull_profile()[i]) - min(raw_hull_profile()[i])];
+    offset_x = (max(raw_hull_profile()[0]) + min(raw_hull_profile()[0])) / 2;
+    offset_y = (max(raw_hull_profile()[1]) + min(raw_hull_profile()[1])) / 2;
+    
+    // Automatically pulls the profile back to absolute center alignment
+    translate([-offset_x, -offset_y, 0])
+        raw_hull_profile();
+}
+
 module inner_pocket_profile() {
-    // Mathematically calculates the interior cavity using the filled silhouette
     offset(r = -wall_thickness) outer_profile();
 }
 
 module button_profile() {
-    // Calculates the nesting top piece size minus print tolerances
     offset(r = -(wall_thickness + tolerance)) outer_profile();
 }
 
@@ -97,6 +108,7 @@ if (part_to_render == "housing") {
 } else if (part_to_render == "button") {
     build_top();
 } else if (part_to_render == "assembled") {
+    // Splits them visually on screen so you can confirm alignment easily
     color("LightSlateGray") build_bottom();
-    translate([40, 0, 0]) color("Orange") build_top();
+    translate([0, 0, housing_height + 5]) color("Orange") build_top();
 }
