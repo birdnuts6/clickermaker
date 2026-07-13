@@ -30,22 +30,24 @@ overcut = 0.1;
 // --- AUTOMATED LAYER GENERATORS ---
 module raw_svg_import() {
     if (logo_file == "" || logo_file == "./" || logo_file == "default.svg") {
-        // FIXED: Using a safe diameter definition that cannot be corrupted by the output engine
         circle(d = 30, $fn = 64);
     } else {
-        // center=true forces MakerWorld to snap your custom asset bounding box to (0,0)
         import(logo_file, center = true);
     }
 }
 
-// Bakes the loose SVG outline into a solid silhouette footprint
+// FLOOD FILL ENGINE: Melts the hollow outline paths into a single solid core silhouette
 module solid_silhouette() {
-    hull() {
-        raw_svg_import();
+    minkowski() {
+        hull() {
+            raw_svg_import();
+        }
+        // Creates a micro-buffer that floods and patches internal vector gaps safely
+        circle(r = 0.1, $fn = 8);
     }
 }
 
-// Pre-computes the 2D layout cache so the offset math never triggers a parsing failure
+// Pre-computes the solid 2D layout cache so the wall offsets look crisp and uniform
 module outer_profile() {
     render(convexity = 4) {
         solid_silhouette();
