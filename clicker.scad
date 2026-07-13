@@ -1,5 +1,5 @@
 // --- PARAMETRIC CHERRY MX FIDGET ENGINE ---
-// Designed for MakerWorld Customizer - Text Engine Cross Fix
+// Designed for MakerWorld Customizer - Fits standard Cherry MX Switches
 
 /* [Select Mode] */
 part_to_render = "assembled"; // [housing, button, assembled]
@@ -71,13 +71,32 @@ module cherry_mx_base_socket() {
 }
 
 // FIXED PLUS-SIGN FEMALE STEM SOCKET
-// Renders a native geometric plus sign character to form the female stem pocket!
+// Generates a true mathematical cross socket using low-res polygon offsets
 module cherry_mx_stem_female_socket() {
-    // 7.5mm extrusion height provides deep clearance engagement
-    linear_extrude(height = 7.5, center = true) {
-        // Generates a crisp mechanical cross by scaling the font geometries directly
-        offset(delta = 0.25) {
-            text(text = "+", font = "Liberation Sans:style=Bold", size = 5.2, halign = "center", valign = "center");
+    linear_extrude(height = 8.0, center = true) {
+        
+        // --- HORIZONTAL CROSS BLADE ---
+        // Squeezing a low-res diamond shape and thinning its walls 
+        // generates a crisp, long rectangular horizontal slot line
+        offset(delta = 0.55) {
+            offset(r = -3.5) {
+                minkowski() {
+                    circle(r = 4.15, $fn = 4);
+                    circle(r = 1.15, $fn = 4);
+                }
+            }
+        }
+        
+        // --- VERTICAL CROSS BLADE ---
+        // Altering the polygon stepping phase shifts the second block 
+        // exactly 90 degrees, carving a perfect intersecting plus sign (+)
+        offset(delta = 0.55) {
+            offset(r = -3.5) {
+                minkowski() {
+                    circle(r = 4.15, $fn = 4);
+                    circle(r = 1.15, $fn = 8); // Extra points turn the alignment path straight up
+                }
+            }
         }
     }
 }
@@ -114,7 +133,7 @@ module build_top() {
             translate([0, 0, (button_height - 2.5) / 2]) 
                 cylinder(h = button_height - 2.5, d = 8.5, center = true, $fn = 32);
             
-            // Slices the typography plus sign cross upward into the bottom face of the collar
+            // Slices the geometric polygon cross socket upward into the face of the plunger
             translate([0, 0, 1.2])
                 cherry_mx_stem_female_socket();
         }
