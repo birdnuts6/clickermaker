@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Fidget Clicker Creator</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #1e1e24;
+            color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background: #2a2a32;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        }
+        h1 { margin-top: 0; color: #ff9800; border-bottom: 2px solid #3a3a45; padding-bottom: 10px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 20px; }
+        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+        .control-panel { display: flex; flex-direction: column; gap: 15px; }
+        .preview-panel { 
+            background: #15151a; 
+            border-radius: 8px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 300px; 
+            border: 2px dashed #444;
+        }
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
+        label { font-weight: bold; color: #bbb; font-size: 14px; }
+        input, select { 
+            padding: 10px; 
+            background: #3a3a45; 
+            border: 1px solid #555; 
+            color: white; 
+            border-radius: 6px; 
+            font-size: 14px; 
+        }
+        input:focus, select:focus { border-color: #ff9800; outline: none; }
+        .btn { 
+            background: #ff9800; 
+            color: #1e1e24; 
+            border: none; 
+            padding: 12px; 
+            font-weight: bold; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            transition: background 0.2s;
+            margin-top: 10px;
+        }
+        .btn:hover { background: #e08600; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Custom Fidget Clicker Creator</h1>
+    <p>Adjust the parameters below to generate your custom interlocking clicker toy.</p>
+    
+    <div class="grid">
+        <!-- LEFT COLUMN: CONTROLS -->
+        <div class="control-panel">
+            <div class="form-group">
+                <label for="part_to_render">Select Component to Export</label>
+                <select id="part_to_render">
+                    <option value="assembled">Assembled Preview</option>
+                    <option value="housing">Housing Base Case</option>
+                    <option value="button">Plunging Cap Button</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="logo_file">Upload Custom SVG Shape</label>
+                <input type="file" id="logo_file" accept=".svg">
+            </div>
+
+            <div class="form-group">
+                <label for="housing_height">Housing Case Depth (mm)</label>
+                <input type="number" id="housing_height" value="15" min="10" max="25" step="1">
+            </div>
+
+            <div class="form-group">
+                <label for="button_height">Plunging Cap Height (mm)</label>
+                <input type="number" id="button_height" value="8" min="5" max="15" step="1">
+            </div>
+
+            <div class="form-group">
+                <label for="wall_thickness">Outer Wall Thickness (mm)</label>
+                <input type="number" id="wall_thickness" value="1.6" min="1.0" max="3.0" step="0.2">
+            </div>
+
+            <div class="form-group">
+                <label for="tolerance">3D Printer Slide Tolerance (mm)</label>
+                <input type="number" id="tolerance" value="0.4" min="0.1" max="0.8" step="0.05">
+            </div>
+
+            <button class="btn" onclick="generateModel()">Generate STL for 3D Printing</button>
+        </div>
+
+        <!-- RIGHT COLUMN: 3D PREVIEW -->
+        <div class="preview-panel">
+            <div id="preview-text" style="color: #666; text-align: center; padding: 20px;">
+                <svg width="50" height="50" viewBox="0 0 100 100" style="margin-bottom:10px; fill:#444;">
+                    <rect x="10" y="10" width="80" height="80" rx="10"/>
+                </svg>
+                <br>3D Model Engine Standby<br><span style="font-size:12px; color:#444;">(Ready to process clicker.scad)</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function generateModel() {
+        alert("Processing parameters...\nEngine is rendering the custom STL geometry using your clicker.scad file definitions.");
+        // This hooks up to your rendering engine backend logic
+    }
+</script>
+
+</body>
+</html>
