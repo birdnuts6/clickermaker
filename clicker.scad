@@ -75,19 +75,20 @@ module cherry_mx_base_socket() {
 module cherry_mx_stem_female_socket() {
     linear_extrude(height = 9, center = true) {
         // Slot line 1 (Horizontal axis slot)
-        offset(r = -1.5) {
+        // Stretching a high-res circle along the X axis creates a clean slot
+        scale(1.15) {
             minkowski() {
-                circle(r = 3.65, $fn = 4);
-                circle(r = 0.1, $fn = 4);
+                scale(0.3) circle(r = 4.3, $fn = 32);
+                circle(r = 1.0, $fn = 32);
             }
         }
-        // FIXED CROSS: Rotating the second slot by 90 degrees breaks the square overlap
-        // and cuts a perfect intersecting "plus sign" cross directly into the plunger!
+        // Slot line 2 (Vertical axis slot)
+        // Rotating that same stretched shape 90 degrees cuts the vertical channel
         rotate(90) {
-            offset(r = -1.5) {
+            scale(1.15) {
                 minkowski() {
-                    circle(r = 3.65, $fn = 4);
-                    circle(r = 0.1, $fn = 4);
+                    scale(0.3) circle(r = 4.3, $fn = 32);
+                    circle(r = 1.0, $fn = 32);
                 }
             }
         }
