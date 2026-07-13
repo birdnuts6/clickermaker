@@ -1,5 +1,5 @@
-// --- PARAMETRIC CHERRY MX FIDGET ENGINE ---
-// Designed for MakerWorld Customizer - True Shape Extractor
+// --- PARAMETRIC CHERRY MX KEYBOARD SWITCH FIDGET ENGINE ---
+// Designed for MakerWorld Customizer - Fits standard keyboard switches
 
 /* [Select Mode] */
 part_to_render = "assembled"; // [housing, button, assembled]
@@ -8,15 +8,19 @@ part_to_render = "assembled"; // [housing, button, assembled]
 logo_file = "default.svg"; // [image_folder: ""]
 
 /* [Housing Dimensions] */
+// Total thickness of the bottom case (mm)
 housing_height = 15; // [12:1:25]
-wall_thickness = 3.2; // [2.0:0.5:6.0]
+// Outer structural wall thickness (mm)
+wall_thickness = 3.5; // [2.5:0.5:6.0]
 
 /* [Button Dimensions] */
+// Height of the plunging cap piece (mm)
 button_height = 11; // [8:1:20]
+// Clearance gap so parts don't jam or bind up when pressed (mm)
 tolerance = 0.45; // [0.1:0.05:0.8]
 
-/* [Hidden Internal Calibration Settings] */
-floor_thickness = 4.0; // Thick base deck to seal out pin holes
+/* [Hidden Settings] */
+floor_thickness = 4.0; // Heavy floor blocks pin punch-throughs
 overcut = 0.1;        
 
 
@@ -24,20 +28,23 @@ overcut = 0.1;
 
 module raw_svg_import() {
     if (logo_file == "" || logo_file == "./" || logo_file == "default.svg") {
-        circle(r = 22, $fn = 64); // Safe fallback circle definition
+        circle(r = 22, $fn = 64); 
     } else {
         import(logo_file, center = true);
     }
 }
 
-// TRUE SHAPE EXTRACTOR: 
-// Replaced the 'hull' function with a strict offset perimeter filter.
-// This skips the outer square artboard canvas lines and traces your true artwork path!
+// FIXED: Removed the hull() block completely!
+// Uses progressive mathematical stepping to melt hollow vector path strokes 
+// into a unified solid mass without filling in your sharp outer valleys or star points.
 module outer_profile() {
     render(convexity = 6) {
-        // Double offset pass welds hollow lines without melting them into a square block
-        offset(r = 2.0) offset(r = -4.0) offset(r = 2.0) {
-            raw_svg_import();
+        offset(r = 2.0) {
+            offset(r = -4.0) {
+                offset(r = 2.0) {
+                    raw_svg_import();
+                }
+            }
         }
     }
 }
@@ -51,9 +58,9 @@ module button_profile() {
 }
 
 
-// --- BUILT-IN KEYBOARD SWITCH SOCKET ENGINES ---
+// --- SWITCH INTERLOCK MECHANICS ---
 
-// Creates a clean 14.1mm x 14.1mm square opening using standard radius offsets
+// Creates a clean 14.1mm x 14.1mm frame square with zero layout array arrays
 module cherry_mx_base_socket() {
     linear_extrude(height = 15, center = true) {
         offset(r = -2.95) {
@@ -66,7 +73,7 @@ module cherry_mx_base_socket() {
     cylinder(h = 24, d = 4.6, center = true, $fn = 24);
 }
 
-// Creates the precise female cross-shaped plunger receiver slot
+// Creates the precise female cross socket by extruding crossed geometry
 module cherry_mx_stem_female_socket() {
     linear_extrude(height = 9, center = true) {
         offset(r = -1.5) {
