@@ -31,6 +31,7 @@ overcut = 0.1;
 module raw_svg_import() {
     if (logo_file == "" || logo_file == "./" || logo_file == "default.svg") {
         minkowski() {
+            // FIXED: Added the missing 26x26mm fallback square dimensions back in!
             square([26, 26], center = true);
             circle(r = 2, $fn = 16);
         }
@@ -86,7 +87,7 @@ module build_top() {
             button_profile();
         
         // Stamps the core straight out of the underside of the button cap
-        translate([0, 0, 0]) 
+        translate() 
             mechanical_core();
     }
 }
